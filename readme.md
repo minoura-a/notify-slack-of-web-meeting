@@ -18,7 +18,19 @@
     * [Notify Slack of web meeting CLI](https://github.com/yamadakou/notify-slack-of-web-meeting.cli)
       * https://github.com/yamadakou/notify-slack-of-web-meeting.cli
 
+### システム全体構成
+![image](https://user-images.githubusercontent.com/45925612/220557788-1504211f-82ac-404c-9f38-e2cedcd64c46.png)
+
 ### 機能説明
+
+#### REST APIの呼び出しに必要なヘッダ設定
+REST APIの呼び出しには以下のヘッダ情報が必要です。
+|ヘッダ名|説明|
+|:--|:--|
+|x-nsw-email-address|Eメールアドレス※1|
+|x-nsw-auth-key|認証キー※2|
+
+
 ####  Web会議情報を登録・検索・削除する REST API
 * Web会議情報を登録
   ```js
@@ -196,8 +208,11 @@
 * 平日の朝9時に実行
 * 翌日のWeb会議情報をWeb会議情報に指定されているSlackチャンネル情報ごとに開始時刻順にソートし、Slackチャンネルに通知します。
 * Slackチャンネルに通知したWeb会議情報は削除します。
+
 ## 利用方法
+
 ### Azure環境
+
 Azure Functions と Azure Cosmos DB を利用します。
 * Azure Cosmos DB アカウントに以下の Database および Container を作成する。
   * Database
@@ -253,6 +268,22 @@ Visual Studio Code で、ビルドと Azure Functions への発行ができる�
 7. クライアントからSlackチャンネル情報やWeb会議情報を登録する。
     * コンソールアプリ「notify-slack-of-web-meeting.cli」利用する場合は以下のリポジトリを参照
       * https://github.com/yamadakou/notify-slack-of-web-meeting.cli
+8.  認証の設定を有効にするために、Azure Functionsで認証を要求する設定を行う
+    * Azure PotalでデプロイしたAzure Functionsを開く
+    * 左のナビの[設定] - [認証]を開き、IDプロバイダーを追加する
+    * IDプロバイダーの選択で[Microsoft]を選択する
+    * 認証されていない要求の設定で、[HTTP 401 認可されていない: API に推奨]を選択する
+    * 他はデフォルト設定とし、[追加]ボタンを押下する
+    * Azure Potalの、[Azure Avtive Directory]を開く
+    * 左のナビの[管理] - [アプリの登録]を開きAzure Functionsの名前でアプリが登録されているため、開く
+    * 左のナビの[管理] - [アプリのロール]を開き、[アプリロールの作成]を押下する
+    * 表示名、値、説明に「ReadWrite」と記入（表示名と説明は任意）し、許可されたメンバーの種類は「両方」を選択し、[適用]ボタンを押下する
+9.  認証が必要なAzure Functionsにアクセスするためにデーモンアプリを作成する
+    * Azure Potalの、[Azure Avtive Directory]を開く
+    * 左のナビの[管理] - [アプリの登録]を開き、新規追加を押下する
+    * 名前にdaemon-{Azure Functionsの名前}のように対象のAzure Functionsのデーモンアプリであることがわかる名前を入力する
+    * 他はデフォルト設定とし、[登録]ボタンを押下する
+    
 #### 依存パッケージ
 ※ `dotnet list package` の結果から作成
   |最上位レベル パッケージ|バージョン|Nuget|
